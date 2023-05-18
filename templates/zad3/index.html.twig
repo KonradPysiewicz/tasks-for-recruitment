@@ -1,0 +1,213 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Users list{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <br>
+        <br>
+
+        <div class="input-group mb-3">
+            <input id="inputSearchUser" type="text" class="form-control" placeholder="Search user">
+            <div class="input-group-append">
+                <a id="searchSubmit" class="btn btn-primary">Search</a>
+            </div>
+        </div>
+
+        <br>
+        <div class="table-responsive">
+            <table id="user-table" class="table table-striped table-hover table-bordered">
+                <thead>
+                <tr>
+                    <th>
+                        id
+                    </th>
+                    <th>
+                        Name
+                    </th>
+                    <th>
+                        Email
+                    </th>
+                    <th>
+                        Gender
+                    </th>
+                    <th>
+                        Status
+                    </th>
+                    <th>
+                        Action
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        <br>
+
+        <div class="table-responsive">
+            <table id="edit-table" class="table table-striped table-hover table-bordered">
+                <thead>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+    </div>
+        <br>
+
+        <div class="table-responsive">
+            <table id="result-table" class="table table-striped table-hover table-bordered">
+                <thead>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+<script>
+    $(document).ready(function() {
+        const id = []
+        const name = []
+        const email = []
+        const gender = []
+        const status = []
+
+        getUsers(id, name, email, gender, status);
+
+        $("#user-table").on("click", ".editBtn", function () {
+            clearTables()
+
+            var row = $(this).closest("tr");
+            var rowIndex = row.index();
+
+            var headerRow = '<tr id="headerRow"><th>id</th><th>Name</th><th>Email</th><th>Gender</th><th>Status</th><th>Action</th></tr>';
+            $('#edit-table thead').append(headerRow);
+
+            var inputRow = '<tr>';
+            inputRow += '<td id="inputId">' + id[rowIndex] + '</td>';
+            inputRow += '<td><input id="inputName" name="inputName" type="text" class="form-control" value="' + name[rowIndex] + '"></td>';
+            inputRow += '<td><input id="inputEmail" name="inputId" type="text" class="form-control" value="' + email[rowIndex] + '"></td>';
+            inputRow += '<td><input id="inputGender" name="inputId" type="text" class="form-control" value="' + gender[rowIndex] + '"></td>';
+            inputRow += '<td><input id="inputStatus" name="inputId" type="text" class="form-control" value="' + status[rowIndex] + '"></td>';
+            inputRow += ' <td><a id="saveBtn" class="btn btn-success">Save</a> </td>';
+
+            $('#edit-table tbody').append(inputRow);
+
+            $("#saveBtn").on("click", function () {
+                $('#result-table thead').empty();
+                $('#result-table tbody').empty();
+                var inputId = id[rowIndex];
+                var inputName = $("#inputName").val();
+                var inputEmail = $("#inputEmail").val();
+                var inputGender = $("#inputGender").val();
+                var inputStatus = $("#inputStatus").val();
+                $.get('{{ absolute_url(path('zad_3_edit_user')) }}',
+                    {
+                        inputId: inputId,
+                        inputName: inputName,
+                        inputEmail: inputEmail,
+                        inputGender: inputGender,
+                        inputStatus: inputStatus
+                    },
+                    function (response) {
+                    if (response.id === undefined){
+                        alert("Incorrect input values")
+                        return
+                    }
+
+                        var headerRow = '<tr><th>id</th><th>Name</th><th>Email</th><th>Gender</th><th>Status</th></tr>';
+                        $('#result-table thead').append(headerRow);
+                        var row = '<tr>';
+                        row += '<td>' + response.id + '</td>';
+                        row += '<td>' + response.name + '</td>';
+                        row += '<td>' + response.email + '</td>';
+                        row += '<td>' + response.gender + '</td>';
+                        row += '<td>' + response.status + '</td>';
+                        row += '</tr>';
+                        $('#result-table tbody').append(row);
+                    });
+            })
+        });
+
+        $("#searchSubmit").on("click", function () {
+            clearTables()
+            var userName = $("#inputSearchUser").val();
+
+            $.get('{{ absolute_url(path('zad_3_user')) }}', {userName: userName},
+                function (response) {
+                    clearArrays(id, name, email, gender, status)
+
+                    if (response.length === 0) {
+                        getUsers(id, name, email, gender, status)
+                    } else {
+                        $('#user-table tbody').empty();
+                        var row = '<tr>';
+                        row += '<td>' + response.id + '</td>';
+                        row += '<td>' + response.name + '</td>';
+                        row += '<td>' + response.email + '</td>';
+                        row += '<td>' + response.gender + '</td>';
+                        row += '<td>' + response.status + '</td>';
+                        row += ' <td> <a class="btn btn-warning editBtn">Edit</a> </td>';
+                        row += '</tr>';
+                        $('#user-table tbody').append(row);
+
+                        id.push(response.id)
+                        name.push(response.name)
+                        email.push(response.email)
+                        gender.push(response.gender)
+                        status.push(response.status)
+                    }
+                });
+        });
+
+
+
+        function getUsers(id, name, email, gender, status) {
+            clearArrays(id, name, email, gender, status)
+            clearTables()
+            $.get('{{ absolute_url(path('zad_3_users')) }}',
+                function (response) {
+                    $('#user-table tbody').empty();
+
+                    response.forEach(function (user) {
+                        var row = '<tr>';
+                        row += '<td>' + user.id + '</td>';
+                        row += '<td>' + user.name + '</td>';
+                        row += '<td>' + user.email + '</td>';
+                        row += '<td>' + user.gender + '</td>';
+                        row += '<td>' + user.status + '</td>';
+                        row += ' <td> <a class="btn btn-warning editBtn">Edit</a> </td>';
+                        row += '</tr>';
+                        $('#user-table tbody').append(row);
+
+                        id.push(user.id)
+                        name.push(user.name)
+                        email.push(user.email)
+                        gender.push(user.gender)
+                        status.push(user.status)
+                    });
+                });
+        }
+
+        function clearArrays(id, name, email, gender, status) {
+            id.length = 0
+            name.length = 0
+            email.length = 0
+            gender.length = 0
+            status.length = 0
+        }
+
+        function clearTables(){
+            $('#edit-table thead').empty();
+            $('#edit-table tbody').empty();
+            $('#result-table thead').empty();
+            $('#result-table tbody').empty();
+        }
+    });
+
+</script>
+{% endblock %}
