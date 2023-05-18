@@ -29,7 +29,6 @@ class UserServiceREST
     /**
      * @return array
      * @throws ClientExceptionInterface
-     * @throws DecodingExceptionInterface
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
@@ -50,6 +49,14 @@ class UserServiceREST
         return $users;
     }
 
+    /**
+     * @param UserDTO $userDTO
+     * @return UserDTO|array
+     * @throws ClientExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     */
     public function editUser(UserDTO $userDTO): UserDTO|array
     {
         $response = $this->client->request(
@@ -70,8 +77,6 @@ class UserServiceREST
             return [];
         }
 
-        $user = $this->serializer->deserialize($response->getContent(), UserDTO::class, 'json');
-
-        return $user;
+        return $this->serializer->deserialize($response->getContent(), UserDTO::class, 'json');
     }
 }

@@ -10,6 +10,11 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 class Zad3Controller extends AbstractController
 {
@@ -24,6 +29,14 @@ class Zad3Controller extends AbstractController
         return $this->render('zad3/index.html.twig');
     }
 
+    /**
+     * @return JsonResponse
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     */
     #[Route('/zad3/users', name: 'zad_3_users')]
     public function getUsersAjaxRequest(): JsonResponse
     {
@@ -33,6 +46,15 @@ class Zad3Controller extends AbstractController
     }
 
 
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     */
     #[Route('/zad3/user', name: 'zad_3_user')]
     public function getUserAjaxRequest(Request $request): JsonResponse
     {
